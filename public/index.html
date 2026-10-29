@@ -1,66 +1,383 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta
 			name="viewport"
-			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+			content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 		/>
-		<title>Scramjet</title>
+		<title>BEANCHAT</title>
 
-		<link rel="shortcut icon" content="favicon.webp" />
-	
+		<link
+			rel="icon"
+			href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%98%3C/text%3E%3C/svg%3E"
+		/>
+
 		<script src="/scram/scramjet.all.js"></script>
 		<script src="/baremux/index.js"></script>
-		
+
+		<!-- index.css is kept because it also styles the page that opens after you search -->
 		<link rel="stylesheet" href="index.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Russo+One&display=swap"
+			rel="stylesheet"
+		/>
 		<script src="register-sw.js" defer></script>
 		<script src="search.js" defer></script>
 		<script src="index.js" defer></script>
+
+		<style>
+			:root {
+				color-scheme: dark;
+				--bg: #130c09;
+				--panel: #1e1410;
+				--line: #33241b;
+				--text: #f0e4d2;
+				--muted: #a5917b;
+				--bean: #c8883f;
+				--bean-deep: #8b5a2b;
+				--dot: rgba(240, 228, 210, 0.07);
+			}
+			@media (prefers-color-scheme: light) {
+				:root {
+					color-scheme: light;
+					--bg: #f6efe4;
+					--panel: #fffaf1;
+					--line: #e3d3bd;
+					--text: #2a1b11;
+					--muted: #7b6650;
+					--bean: #9a5f22;
+					--bean-deep: #7a4a1a;
+					--dot: rgba(42, 27, 17, 0.09);
+				}
+			}
+			html body {
+				margin: 0;
+				background: var(--bg);
+				background-image: radial-gradient(var(--dot) 1px, transparent 1.5px);
+				background-size: 26px 26px;
+				color: var(--text);
+				font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+			}
+			.bc-home {
+				box-sizing: border-box;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 24px 20px 32px;
+				text-align: center;
+			}
+			.bc-home * {
+				box-sizing: border-box;
+			}
+			.bc-wrap {
+				width: 100%;
+				max-width: 640px;
+			}
+			.bc-home .bc-title {
+				font-family: "Russo One", Impact, "Arial Black", system-ui, sans-serif;
+				font-size: clamp(46px, 11vw, 92px);
+				line-height: 1;
+				letter-spacing: 0.02em;
+				margin: 0;
+				color: var(--bean);
+				font-weight: 400;
+			}
+			.bc-home .bc-tag {
+				margin: 14px 0 36px;
+				font-size: 18px;
+				font-weight: 500;
+				color: var(--text);
+			}
+			.bc-home #sj-form {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				width: 100%;
+				margin: 0;
+				background: var(--panel);
+				border: 1px solid var(--line);
+				border-radius: 18px;
+				padding: 8px 8px 8px 18px;
+				transition: border-color 0.15s;
+			}
+			.bc-home #sj-form:focus-within {
+				border-color: var(--bean);
+			}
+			.bc-home #sj-form svg {
+				flex: none;
+				color: var(--muted);
+			}
+			.bc-home #sj-address {
+				flex: 1;
+				min-width: 0;
+				width: auto;
+				height: auto;
+				margin: 0;
+				background: none;
+				border: 0;
+				outline: 0;
+				box-shadow: none;
+				border-radius: 0;
+				color: var(--text);
+				font: inherit;
+				font-size: 16px;
+				padding: 10px 0;
+			}
+			.bc-home #sj-address::placeholder {
+				color: var(--muted);
+			}
+			.bc-go {
+				flex: none;
+				width: 44px;
+				height: 44px;
+				border: 0;
+				border-radius: 12px;
+				cursor: pointer;
+				background: var(--bean-deep);
+				color: #fff6e8;
+				display: grid;
+				place-items: center;
+				transition: background-color 0.15s, transform 0.1s;
+			}
+			.bc-home .bc-go svg {
+				color: inherit;
+			}
+			.bc-go:hover {
+				background: var(--bean);
+			}
+			.bc-go:active {
+				transform: scale(0.96);
+			}
+			.bc-go:focus-visible,
+			.bc-tile:focus-visible {
+				outline: 2px solid var(--bean);
+				outline-offset: 3px;
+			}
+			.bc-tiles {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 14px 12px;
+				margin-top: 34px;
+			}
+			.bc-cell {
+				position: relative;
+				width: 92px;
+			}
+			.bc-tile {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 9px;
+				background: none;
+				border: 0;
+				color: var(--text);
+				font: inherit;
+				font-size: 13.5px;
+				font-weight: 500;
+				cursor: pointer;
+				padding: 0;
+			}
+			.bc-tile i {
+				width: 68px;
+				height: 68px;
+				border-radius: 18px;
+				display: grid;
+				place-items: center;
+				background: var(--panel);
+				border: 1px solid var(--line);
+				color: var(--text);
+				font-style: normal;
+				transition: border-color 0.15s, background-color 0.15s;
+			}
+			.bc-tile:hover i {
+				border-color: var(--bean);
+				background: color-mix(in srgb, var(--panel) 80%, var(--bean));
+			}
+			.bc-tile.add i {
+				border-style: dashed;
+				color: var(--muted);
+				background: none;
+			}
+			.bc-tile .bc-letter {
+				font: 400 26px "Russo One", Impact, sans-serif;
+			}
+			.bc-x {
+				position: absolute;
+				top: -4px;
+				right: 8px;
+				width: 22px;
+				height: 22px;
+				border-radius: 50%;
+				border: 1px solid var(--line);
+				background: var(--panel);
+				color: var(--muted);
+				font-size: 14px;
+				line-height: 1;
+				cursor: pointer;
+				display: none;
+				place-items: center;
+				padding: 0;
+			}
+			.bc-cell:hover .bc-x,
+			.bc-cell:focus-within .bc-x {
+				display: grid;
+			}
+			.bc-home .bc-err {
+				margin-top: 22px;
+				color: var(--text);
+				font-size: 14px;
+			}
+			.bc-home .bc-err:empty,
+			.bc-home .bc-errcode:empty {
+				display: none;
+			}
+			.bc-home .bc-errcode {
+				margin: 8px 0 0;
+				white-space: pre-wrap;
+				word-break: break-word;
+				text-align: left;
+				background: var(--panel);
+				border: 1px solid var(--line);
+				border-radius: 10px;
+				padding: 10px 12px;
+				font-size: 12.5px;
+				color: var(--muted);
+			}
+			.bc-foot {
+				margin-top: 44px;
+				font-size: 12.5px;
+				color: var(--muted);
+			}
+			.bc-foot a {
+				color: var(--muted);
+			}
+			@media (prefers-reduced-motion: reduce) {
+				* {
+					transition: none !important;
+				}
+			}
+		</style>
 	</head>
 
 	<body>
-		<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
-			<img class="logo" src="sj.png" alt="Scramjet" />
-			<h1>Scramjet | MW</h1>
-		</div>
-		<div class="flex-center desc left-margin">
-			<p>
-				Scramjet is an experimental interception based web proxy designed to
-				evade internet censorship, bypass arbitrary web browser restrictions and
-				innovate web proxy technologies.
-			</p>
+		<div class="bc-home">
+			<div class="bc-wrap">
+				<h1 class="bc-title">BEANCHAT</h1>
+				<p class="bc-tag">Unlock the beans</p>
+
+				<form id="sj-form" autocomplete="off">
+					<input
+						id="sj-search-engine"
+						value="https://www.google.com/search?q=%s"
+						type="hidden"
+					/>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+					<input
+						id="sj-address"
+						type="text"
+						placeholder="Search or enter a website"
+						aria-label="Search or enter a website"
+						spellcheck="false"
+					/>
+					<button class="bc-go" type="submit" aria-label="Go">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+					</button>
+				</form>
+
+				<div class="bc-tiles" id="bc-tiles"></div>
+
+				<p id="sj-error" class="bc-err"></p>
+				<pre id="sj-error-code" class="bc-errcode"></pre>
+
+				<div class="bc-foot">
+					Powered by
+					<a href="https://github.com/MercuryWorkshop/scramjet">Scramjet</a>
+					&middot; <a href="credits.html">Credits</a>
+				</div>
+			</div>
 		</div>
 
-		<form id="sj-form" class="flex-center">
-			<input
-				id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
-				type="hidden"
-			/>
-			<input id="sj-address" type="text" placeholder="Search the web freely" />
-		</form>
-		<div class="desc left-margin">
-			<p id="sj-error"></p>
-			<pre id="sj-error-code"></pre>
-		</div>
-		<footer>
-			<div>
-				<a
-					title="The Mercury Workshop GitHub organization"
-					href="https://github.com/MercuryWorkshop"
-					>Mercury Workshop</a
-				>
-				<a
-					title="The example demo app for Scramjet"
-					href="https://github.com/MercuryWorkshop/Scramjet-Demo"
-					>GitHub</a
-				>
-				<a title="License information" href="credits.html">Credits</a>
-			</div>
-			<div>
-				<span>Scramjet &copy; MW 2025</span>
-			</div>
-		</footer>
+		<script>
+			// Quick tiles. Clicking one fills the address box and sends it through the normal search form,
+			// so it opens exactly like typing the address yourself.
+			(function () {
+				var KEY = "beanchat_tiles";
+				var DEFAULTS = [
+					{ name: "Google", url: "https://www.google.com", icon: "search" },
+					{ name: "YouTube", url: "https://www.youtube.com", icon: "play" },
+					{ name: "Reddit", url: "https://www.reddit.com", icon: "chat" },
+					{ name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W" },
+				];
+				var ICONS = {
+					search: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+					play: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>',
+					chat: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+				};
+				var host = document.getElementById("bc-tiles");
+				var form = document.getElementById("sj-form");
+				var address = document.getElementById("sj-address");
+
+				function load() {
+					try {
+						var saved = JSON.parse(localStorage.getItem(KEY));
+						if (Array.isArray(saved)) return saved;
+					} catch (e) {}
+					return DEFAULTS.slice();
+				}
+				function save(list) {
+					try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {}
+				}
+				function esc(s) {
+					return String(s).replace(/[&<>"]/g, function (c) {
+						return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+					});
+				}
+				function go(url) {
+					address.value = url;
+					if (form.requestSubmit) form.requestSubmit();
+					else form.dispatchEvent(new Event("submit", { cancelable: true }));
+				}
+				function draw() {
+					var list = load();
+					host.innerHTML = "";
+					list.forEach(function (t, i) {
+						var cell = document.createElement("div");
+						cell.className = "bc-cell";
+						var icon = ICONS[t.icon] || '<span class="bc-letter">' + esc((t.name || "?").charAt(0).toUpperCase()) + "</span>";
+						if (t.icon === "W") icon = '<span class="bc-letter">W</span>';
+						cell.innerHTML =
+							'<button type="button" class="bc-tile"><i>' + icon + "</i>" + esc(t.name) + "</button>" +
+							'<button type="button" class="bc-x" aria-label="Remove ' + esc(t.name) + '">&times;</button>';
+						cell.querySelector(".bc-tile").onclick = function () { go(t.url); };
+						cell.querySelector(".bc-x").onclick = function () {
+							var l = load(); l.splice(i, 1); save(l); draw();
+						};
+						host.appendChild(cell);
+					});
+					var add = document.createElement("div");
+					add.className = "bc-cell";
+					add.innerHTML =
+						'<button type="button" class="bc-tile add"><i><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i>Add</button>';
+					add.querySelector(".bc-tile").onclick = function () {
+						var site = (prompt("Website address, like reddit.com") || "").trim();
+						if (!site) return;
+						var url = /^https?:\/\//i.test(site) ? site : "https://" + site;
+						var name;
+						try { name = new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return; }
+						var l = load(); l.push({ name: name.split(".")[0].charAt(0).toUpperCase() + name.split(".")[0].slice(1), url: url });
+						save(l); draw();
+					};
+					host.appendChild(add);
+				}
+				draw();
+			})();
+		</script>
 	</body>
 </html>
