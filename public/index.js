@@ -52,9 +52,16 @@ form.addEventListener("submit", async (event) => {
         "://" +
         location.host +
         "/wisp/";
-    if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-        await connection.setTransport("/libcurl/index.mjs", [
-            { websocket: wispUrl },
+        const wanted =
+        new URLSearchParams(location.search).get("transport") ||
+        localStorage.getItem("transport") ||
+        "libcurl";
+    localStorage.setItem("transport", wanted);
+    const transportPath =
+        wanted === "epoxy" ? "/epoxy/index.mjs" : "/libcurl/index.mjs";
+    if ((await connection.getTransport()) !== transportPath) {
+        await connection.setTransport(transportPath, [
+            wanted === "epoxy" ? { wisp_url: wispUrl } : { websocket: wispUrl },
         ]);
     }
     const frame = scramjet.createFrame();
