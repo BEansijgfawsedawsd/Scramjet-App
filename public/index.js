@@ -61,7 +61,7 @@ form.addEventListener("submit", async (event) => {
         wanted === "epoxy" ? "/epoxy/index.mjs" : "/libcurl/index.mjs";
     if ((await connection.getTransport()) !== transportPath) {
         await connection.setTransport(transportPath, [
-            wanted === "epoxy" ? { wisp_url: wispUrl } : { websocket: wispUrl },
+wanted === "epoxy" ? { wisp: wispUrl } : { websocket: wispUrl },
         ]);
     }
     const frame = scramjet.createFrame();
